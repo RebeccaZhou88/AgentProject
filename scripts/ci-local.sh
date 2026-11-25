@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # =============================================================================
-# Local CI Runner — mirrors the GitHub Actions pipeline
+# Local CI Runner 鈥?mirrors the GitHub Actions pipeline
 # =============================================================================
 # Single idempotent entry point. Runs the same checks as CI, locally.
 # Prompts for any missing environment variables when needed.
@@ -47,12 +47,12 @@ BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m'
 
-PASS="✅"
-FAIL="❌"
-SKIP="⏭️ "
-WARN="⚠️ "
-RUNNING="🔄"
-PHASE="═══"
+PASS="鉁?
+FAIL="鉂?
+SKIP="鈴笍 "
+WARN="鈿狅笍 "
+RUNNING="馃攧"
+PHASE="鈺愨晲鈺?
 
 # --- State Tracking ---
 declare -A STEP_RESULTS
@@ -98,7 +98,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --review        Run quick CrewAI code review (OpenRouter default)"
   echo "  --full-review   Enable deep routing: full review + broader specialist coverage"
       echo "  --complete-full-review   Run full review + all specialists in complete-repo mode"
-      echo "  --crew <name>   Run specific crew(s) — can be repeated (e.g. --crew security --crew legal)"
+      echo "  --crew <name>   Run specific crew(s) 鈥?can be repeated (e.g. --crew security --crew legal)"
       echo "  --deploy        Run Cloudflare deploy (requires CF credentials)"
       echo "  --step <name>   Run a single step by name"
       echo "  --verbose       Show full command output"
@@ -196,7 +196,7 @@ check_env_for_review() {
     return 0
   fi
 
-  echo -e "  ${DIM}Skipping review — set OPENROUTER_API_KEY.${NC}"
+  echo -e "  ${DIM}Skipping review 鈥?set OPENROUTER_API_KEY.${NC}"
   return 1
 }
 
@@ -247,7 +247,7 @@ check_dependencies() {
     echo ""
     echo -e "  ${RED}${FAIL} Missing required tools:${NC}"
     for tool in "${missing[@]}"; do
-      echo -e "     ${RED}•${NC} $tool"
+      echo -e "     ${RED}鈥?{NC} $tool"
     done
     echo ""
     exit 1
@@ -439,12 +439,12 @@ print_result() {
       STEP_RESULTS["$name"]="fail"
       ;;
     skip)
-      echo -e "  ${SKIP} ${YELLOW}${name}${NC} ${DIM}— ${detail}${NC}"
+      echo -e "  ${SKIP} ${YELLOW}${name}${NC} ${DIM}鈥?${detail}${NC}"
       STEPS_SKIPPED=$((STEPS_SKIPPED + 1))
       STEP_RESULTS["$name"]="skip"
       ;;
     warn)
-      echo -e "  ${WARN} ${YELLOW}${name}${NC} ${DIM}(${duration}s) — ${detail}${NC}"
+      echo -e "  ${WARN} ${YELLOW}${name}${NC} ${DIM}(${duration}s) 鈥?${detail}${NC}"
       STEPS_PASSED=$((STEPS_PASSED + 1))
       STEP_RESULTS["$name"]="warn"
       ;;
@@ -633,11 +633,11 @@ write_workspace_ci_summary_markdown() {
     echo ""
     echo "Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     echo ""
-    echo "## ✅ Validate Environment"
+    echo "## 鉁?Validate Environment"
     echo ""
     echo "- format/lint/typecheck/commitlint steps are tracked in the table below"
     echo ""
-    echo "## ✅ Test & Build"
+    echo "## 鉁?Test & Build"
     echo ""
     if [[ -f "${workspace_dir}/link-check-report.md" ]]; then
       echo '- test-docs-links: completed (see `link-check-report.md`)'
@@ -649,16 +649,16 @@ write_workspace_ci_summary_markdown() {
       echo "- test-docs-links: skipped"
     fi
     echo ""
-    echo "## 🚀 Deploy"
+    echo "## 馃殌 Deploy"
     echo ""
     echo "- deploy-preview: ${STEP_RESULTS[Preview Deploy]:-skip}"
     echo "- deploy-production: ${STEP_RESULTS[Production Deploy]:-skip}"
     echo ""
-    echo "## 🤖 CrewAI Review"
+    echo "## 馃 CrewAI Review"
     echo ""
     echo "- crewai-review: ${STEP_RESULTS[CrewAI Review]:-pending}"
     echo ""
-    echo "## 📊 Step table"
+    echo "## 馃搳 Step table"
     echo ""
     echo "| Step | Status | Duration |"
     echo "| --- | --- | --- |"
@@ -905,9 +905,9 @@ run_phase_2() {
         echo "Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
         echo ""
         if [[ "${STEP_RESULTS[Link Check]:-skip}" == "pass" ]]; then
-          echo "✅ All checked links passed."
+          echo "鉁?All checked links passed."
         else
-          echo "⚠️ Link check reported issues."
+          echo "鈿狅笍 Link check reported issues."
         fi
         echo ""
         echo "- Internal checker: ${internal_status}"
@@ -1102,7 +1102,7 @@ run_phase_4() {
   echo -e "  ${DIM}Generated diff: ${diff_size} lines${NC}"
 
   if [[ "$diff_size" -eq 0 ]]; then
-    echo -e "  ${WARN} No changes detected — nothing to review."
+    echo -e "  ${WARN} No changes detected 鈥?nothing to review."
     print_result "CrewAI Review" "skip" "0" "no changes to review"
     return 0
   fi
@@ -1454,7 +1454,7 @@ lines.extend(['', '## Diff excerpt', '[DIFF BEGIN]', diff_excerpt, '[DIFF END]']
     else
       while IFS= read -r line; do
         case "$line" in
-          *"STEP"*|*"✅"*|*"❌"*|*"⚠️"*|*"🔬"*|*"complete"*)
+          *"STEP"*|*"鉁?*|*"鉂?*|*"鈿狅笍"*|*"馃敩"*|*"complete"*)
             echo -e "     ${DIM}${line}${NC}"
             ;;
         esac
@@ -1468,7 +1468,7 @@ lines.extend(['', '## Diff excerpt', '[DIFF BEGIN]', diff_excerpt, '[DIFF END]']
       echo -e "  ${YELLOW}${WARN}${NC} CrewAI review timed out after ${review_timeout_seconds}s"
       if [[ ! -f "$summary_file" ]]; then
         printf '%s\n' \
-          "## ❌ Review Aborted" \
+          "## 鉂?Review Aborted" \
           "" \
           "The review timed out before completion." \
           "" \
@@ -1478,7 +1478,7 @@ lines.extend(['', '## Diff excerpt', '[DIFF BEGIN]', diff_excerpt, '[DIFF END]']
           "" \
           "---" \
           "" \
-          "## 💰 Cost Tracking" \
+          "## 馃挵 Cost Tracking" \
           "" \
           "No API calls recorded." \
           > "$summary_file"
@@ -1496,23 +1496,23 @@ lines.extend(['', '## Diff excerpt', '[DIFF BEGIN]', diff_excerpt, '[DIFF END]']
   # Display summary if it exists
   if [[ -f "$summary_file" ]]; then
     echo ""
-    echo -e "${CYAN}${BOLD}  ┌─ Review Summary ───────────────────────────────────┐${NC}"
+    echo -e "${CYAN}${BOLD}  鈹屸攢 Review Summary 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?{NC}"
     head -30 "$summary_file" | while IFS= read -r line; do
-      echo -e "${CYAN}  │${NC} $line"
+      echo -e "${CYAN}  鈹?{NC} $line"
     done
     local total_lines
     total_lines=$(wc -l < "$summary_file")
     if [[ "$total_lines" -gt 30 ]]; then
-      echo -e "${CYAN}  │${NC} ${DIM}... ($((total_lines - 30)) more lines in .crewai/workspace/final_summary.md)${NC}"
+      echo -e "${CYAN}  鈹?{NC} ${DIM}... ($((total_lines - 30)) more lines in .crewai/workspace/final_summary.md)${NC}"
     fi
-    echo -e "${CYAN}  └──────────────────────────────────────────────────────┘${NC}"
+    echo -e "${CYAN}  鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?{NC}"
     echo ""
     echo -e "  ${DIM}Full review: .crewai/workspace/final_summary.md${NC}"
     echo -e "  ${DIM}All outputs: .crewai/workspace/*.json${NC}"
 
-    if grep -q "^## 💰 Cost" "$summary_file"; then
+    if grep -q "^## 馃挵 Cost" "$summary_file"; then
       echo ""
-      echo -e "${CYAN}${BOLD}  ┌─ Pricing / Cost ───────────────────────────────────┐${NC}"
+      echo -e "${CYAN}${BOLD}  鈹屸攢 Pricing / Cost 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?{NC}"
       local cost_panel
       cost_panel=$(python3 - "$summary_file" <<'PY'
 import sys
@@ -1542,7 +1542,7 @@ with open(summary_path, encoding="utf-8") as handle:
 
 start = None
 for idx, line in enumerate(lines):
-    if line.startswith("## 💰 Cost"):
+    if line.startswith("## 馃挵 Cost"):
         start = idx
         break
 
@@ -1551,7 +1551,7 @@ if start is None:
 
 section = []
 for line in lines[start + 1:]:
-    if line.startswith("## ") and not line.startswith("## 💰 Cost"):
+    if line.startswith("## ") and not line.startswith("## 馃挵 Cost"):
         break
     section.append(line.rstrip())
 
@@ -1583,9 +1583,9 @@ for line in output:
 PY
 )
       while IFS= read -r line; do
-        echo -e "${CYAN}  │${NC} $line"
+        echo -e "${CYAN}  鈹?{NC} $line"
       done <<< "$cost_panel"
-      echo -e "${CYAN}  └──────────────────────────────────────────────────────┘${NC}"
+      echo -e "${CYAN}  鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?{NC}"
     fi
   fi
 
@@ -1605,12 +1605,12 @@ print_summary() {
 
   echo ""
   echo -e "${BOLD}${BLUE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${NC}"
-  echo -e "${BOLD}  📊 CI Results${NC}"
+  echo -e "${BOLD}  馃搳 CI Results${NC}"
   echo -e "${BOLD}${BLUE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${PHASE}${NC}"
   echo ""
 
   printf "  ${BOLD}%-24s %-10s %s${NC}\n" "Step" "Status" "Duration"
-  printf "  %-24s %-10s %s\n" "────────────────────────" "──────────" "────────"
+  printf "  %-24s %-10s %s\n" "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€" "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€" "鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€"
 
   for step in "${!STEP_RESULTS[@]}"; do
     local status="${STEP_RESULTS[$step]}"
@@ -1651,8 +1651,8 @@ main() {
   acquire_run_lock
 
   echo ""
-  echo -e "${BOLD}${BLUE}  🚀 Local CI Runner${NC}"
-  echo -e "${DIM}  Same pipeline as GitHub Actions — minus the cloud.${NC}"
+  echo -e "${BOLD}${BLUE}  馃殌 Local CI Runner${NC}"
+  echo -e "${DIM}  Same pipeline as GitHub Actions 鈥?minus the cloud.${NC}"
   echo -e "${DIM}  $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 
   # Check required tools
