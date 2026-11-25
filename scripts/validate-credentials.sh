@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # =============================================================================
 # Credential Validation Script
 # =============================================================================
@@ -27,9 +27,9 @@ cat > "$SUMMARY_FILE" << 'EOF'
 |---------|------------|------|-------|--------|
 EOF
 
-log_info()  { echo -e "${GREEN}鉁?{NC} $1"; }
-log_warn()  { echo -e "${YELLOW}鈿?{NC} $1"; }
-log_error() { echo -e "${RED}鉁?{NC} $1"; }
+log_info()  { echo -e "${GREEN}✓${NC} $1"; }
+log_warn()  { echo -e "${YELLOW}⚠${NC} $1"; }
+log_error() { echo -e "${RED}✗${NC} $1"; }
 
 add_row() {
   echo "| $1 | $2 | $3 | $4 | $5 |" >> "$SUMMARY_FILE"
@@ -42,24 +42,24 @@ validate_cloudflare() {
   echo "=== Validating Cloudflare Credentials ==="
 
   if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
-    log_warn "CLOUDFLARE_API_TOKEN not set (optional 鈥?deploy will be skipped)"
-    token_status="鈿狅笍 Not Set"
+    log_warn "CLOUDFLARE_API_TOKEN not set (optional — deploy will be skipped)"
+    token_status="⚠️ Not Set"
   else
     log_info "CLOUDFLARE_API_TOKEN is set"
     if command -v wrangler &>/dev/null && wrangler whoami > /dev/null 2>&1; then
       log_info "Cloudflare API token verified via wrangler"
-      token_status="鉁?Valid"
+      token_status="✅ Valid"
     else
-      token_status="鉁?Set (wrangler not available for live check)"
+      token_status="✅ Set (wrangler not available for live check)"
     fi
   fi
 
   if [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
-    log_warn "CLOUDFLARE_ACCOUNT_ID not set (optional 鈥?deploy will be skipped)"
-    account_status="鈿狅笍 Not Set"
+    log_warn "CLOUDFLARE_ACCOUNT_ID not set (optional — deploy will be skipped)"
+    account_status="⚠️ Not Set"
   else
     log_info "CLOUDFLARE_ACCOUNT_ID is set: ${CLOUDFLARE_ACCOUNT_ID:0:8}..."
-    account_status="鉁?Set"
+    account_status="✅ Set"
 
     if [ -n "${CLOUDFLARE_API_TOKEN:-}" ]; then
       ACCOUNT_RESPONSE=$(curl -s \
@@ -69,16 +69,16 @@ validate_cloudflare() {
 
       if echo "$ACCOUNT_RESPONSE" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('success') else 1)" 2>/dev/null; then
         log_info "Cloudflare account access verified"
-        account_status="鉁?Valid"
+        account_status="✅ Valid"
       else
         log_warn "Cannot verify Cloudflare account access"
-        account_status="鈿狅笍 Cannot Verify"
+        account_status="⚠️ Cannot Verify"
       fi
     fi
   fi
 
-  add_row "**Cloudflare**" "API Token" "Secret" "鈥⑩€⑩€⑩€⑩€⑩€⑩€? "$token_status"
-  add_row "" "Account ID" "Secret" "${CLOUDFLARE_ACCOUNT_ID:+${CLOUDFLARE_ACCOUNT_ID:0:8}鈥⑩€⑩€" "$account_status"
+  add_row "**Cloudflare**" "API Token" "Secret" "•••••••" "$token_status"
+  add_row "" "Account ID" "Secret" "${CLOUDFLARE_ACCOUNT_ID:+${CLOUDFLARE_ACCOUNT_ID:0:8}•••}" "$account_status"
 }
 
 validate_google() {
@@ -89,50 +89,50 @@ validate_google() {
 
   if [ -z "${GOOGLE_CLIENT_ID:-}" ]; then
     log_warn "GOOGLE_CLIENT_ID not set (auth will be disabled)"
-    client_id_status="鈿狅笍 Not Set"
+    client_id_status="⚠️ Not Set"
   else
     log_info "GOOGLE_CLIENT_ID is set"
     if [[ "$GOOGLE_CLIENT_ID" =~ apps\.googleusercontent\.com$ ]]; then
       log_info "GOOGLE_CLIENT_ID format is valid"
-      client_id_status="鉁?Valid Format"
+      client_id_status="✅ Valid Format"
     else
       log_warn "GOOGLE_CLIENT_ID format may be invalid (expected: *.apps.googleusercontent.com)"
-      client_id_status="鈿狅笍 Invalid Format"
+      client_id_status="⚠️ Invalid Format"
     fi
   fi
 
   if [ -z "${GOOGLE_CLIENT_SECRET:-}" ]; then
     log_warn "GOOGLE_CLIENT_SECRET not set (auth will be disabled)"
-    client_secret_status="鈿狅笍 Not Set"
+    client_secret_status="⚠️ Not Set"
   else
     log_info "GOOGLE_CLIENT_SECRET is set"
     if [[ "$GOOGLE_CLIENT_SECRET" =~ ^GOCSPX- ]]; then
-      client_secret_status="鉁?Valid Format"
+      client_secret_status="✅ Valid Format"
     else
-      client_secret_status="鉁?Set"
+      client_secret_status="✅ Set"
     fi
   fi
 
   if [ -z "${GOOGLE_REDIRECT_URI:-}" ]; then
     log_warn "GOOGLE_REDIRECT_URI not set"
-    redirect_status="鈿狅笍 Not Set"
+    redirect_status="⚠️ Not Set"
   else
     log_info "GOOGLE_REDIRECT_URI is set: $GOOGLE_REDIRECT_URI"
     if [[ "$GOOGLE_REDIRECT_URI" =~ ^https?:// ]]; then
-      redirect_status="鉁?Valid URL"
+      redirect_status="✅ Valid URL"
     else
-      redirect_status="鈿狅笍 Invalid URL"
+      redirect_status="⚠️ Invalid URL"
     fi
   fi
 
   if [ -z "${ALLOWED_EMAILS:-}" ]; then
     log_warn "ALLOWED_EMAILS not set (no users will be able to access protected content)"
-    emails_status="鈿狅笍 Not Set"
+    emails_status="⚠️ Not Set"
   else
     local email_count
     email_count=$(echo "$ALLOWED_EMAILS" | tr ',' '\n' | grep -c '@' || echo "0")
     log_info "ALLOWED_EMAILS is set: $email_count email(s) configured"
-    emails_status="鉁?$email_count email(s)"
+    emails_status="✅ $email_count email(s)"
   fi
 
   # Live validation: test OAuth token endpoint if both client ID and secret are set
@@ -146,15 +146,15 @@ validate_google() {
       log_info "Google OAuth credentials are valid (bad code expected, credentials accepted)"
     elif [ "$OAUTH_RESPONSE" = "401" ]; then
       log_error "Google OAuth credentials are invalid (401 Unauthorized)"
-      client_id_status="鉂?Invalid"
+      client_id_status="❌ Invalid"
       OVERALL_RESULT=1
     else
       log_warn "Google OAuth endpoint returned HTTP $OAUTH_RESPONSE"
     fi
   fi
 
-  add_row "**Google OAuth**" "Client ID" "Secret" "${GOOGLE_CLIENT_ID:+${GOOGLE_CLIENT_ID:0:20}鈥⑩€⑩€" "$client_id_status"
-  add_row "" "Client Secret" "Secret" "鈥⑩€⑩€⑩€⑩€⑩€⑩€? "$client_secret_status"
+  add_row "**Google OAuth**" "Client ID" "Secret" "${GOOGLE_CLIENT_ID:+${GOOGLE_CLIENT_ID:0:20}•••}" "$client_id_status"
+  add_row "" "Client Secret" "Secret" "•••••••" "$client_secret_status"
   add_row "" "Redirect URI" "Variable" "${GOOGLE_REDIRECT_URI:-not set}" "$redirect_status"
   add_row "" "Allowed Emails" "Secret" "${ALLOWED_EMAILS:+$email_count email(s)}" "$emails_status"
 }
@@ -168,7 +168,7 @@ validate_ai_provider_keys() {
 
   if [ -z "${NVIDIA_API_KEY:-}" ] && [ -z "${NVIDIA_NIM_API_KEY:-}" ]; then
     log_warn "NVIDIA_API_KEY not set (preferred for CrewAI review)"
-    nvidia_status="鈿狅笍 Not Set"
+    nvidia_status="⚠️ Not Set"
   else
     local nvidia_key="${NVIDIA_API_KEY:-${NVIDIA_NIM_API_KEY:-}}"
     log_info "NVIDIA API key is set"
@@ -179,20 +179,20 @@ validate_ai_provider_keys() {
 
     if [ "$NIM_MODELS_RESPONSE" = "200" ]; then
       log_info "NVIDIA API key verified (models endpoint accessible)"
-      nvidia_status="鉁?Valid"
+      nvidia_status="✅ Valid"
     elif [ "$NIM_MODELS_RESPONSE" = "401" ]; then
       log_error "NVIDIA API key is invalid (401 Unauthorized)"
-      nvidia_status="鉂?Invalid"
+      nvidia_status="❌ Invalid"
       OVERALL_RESULT=1
     else
       log_warn "NVIDIA API returned HTTP $NIM_MODELS_RESPONSE"
-      nvidia_status="鈿狅笍 HTTP $NIM_MODELS_RESPONSE"
+      nvidia_status="⚠️ HTTP $NIM_MODELS_RESPONSE"
     fi
   fi
 
   if [ -z "${OPENROUTER_API_KEY:-}" ]; then
     log_warn "OPENROUTER_API_KEY not set (used as fallback)"
-    openrouter_status="鈿狅笍 Not Set"
+    openrouter_status="⚠️ Not Set"
   else
     log_info "OPENROUTER_API_KEY is set"
 
@@ -202,19 +202,19 @@ validate_ai_provider_keys() {
 
     if [ "$MODELS_RESPONSE" = "200" ]; then
       log_info "OpenRouter API key verified (models endpoint accessible)"
-      openrouter_status="鉁?Valid"
+      openrouter_status="✅ Valid"
     elif [ "$MODELS_RESPONSE" = "401" ]; then
       log_error "OpenRouter API key is invalid (401 Unauthorized)"
-      openrouter_status="鉂?Invalid"
+      openrouter_status="❌ Invalid"
       OVERALL_RESULT=1
     else
       log_warn "OpenRouter returned HTTP $MODELS_RESPONSE"
-      openrouter_status="鈿狅笍 HTTP $MODELS_RESPONSE"
+      openrouter_status="⚠️ HTTP $MODELS_RESPONSE"
     fi
   fi
 
-  add_row "**NVIDIA NIM**" "API Key" "Secret" "${NVIDIA_API_KEY:+${NVIDIA_API_KEY:0:12}鈥⑩€⑩€${NVIDIA_NIM_API_KEY:+${NVIDIA_NIM_API_KEY:0:12}鈥⑩€⑩€" "$nvidia_status"
-  add_row "**OpenRouter**" "API Key" "Secret" "${OPENROUTER_API_KEY:+${OPENROUTER_API_KEY:0:12}鈥⑩€⑩€" "$openrouter_status"
+  add_row "**NVIDIA NIM**" "API Key" "Secret" "${NVIDIA_API_KEY:+${NVIDIA_API_KEY:0:12}•••}${NVIDIA_NIM_API_KEY:+${NVIDIA_NIM_API_KEY:0:12}•••}" "$nvidia_status"
+  add_row "**OpenRouter**" "API Key" "Secret" "${OPENROUTER_API_KEY:+${OPENROUTER_API_KEY:0:12}•••}" "$openrouter_status"
 }
 
 validate_optional() {
@@ -223,18 +223,18 @@ validate_optional() {
 
   if [ -n "${GITHUB_TOKEN:-}" ]; then
     log_info "GITHUB_TOKEN is available"
-    add_row "**GitHub**" "Token" "Auto-provided" "鈥⑩€⑩€⑩€⑩€⑩€⑩€? "鉁?Available"
+    add_row "**GitHub**" "Token" "Auto-provided" "•••••••" "✅ Available"
   else
     log_warn "GITHUB_TOKEN not available (expected in Actions context)"
-    add_row "**GitHub**" "Token" "Auto-provided" "-" "鈿狅笍 Not Available"
+    add_row "**GitHub**" "Token" "Auto-provided" "-" "⚠️ Not Available"
   fi
 
   if [ -n "${MEM0_API_KEY:-}" ]; then
     log_info "MEM0_API_KEY is set (cloud memory enabled)"
-    add_row "**mem0**" "API Key" "Secret" "鈥⑩€⑩€⑩€⑩€⑩€⑩€? "鉁?Set"
+    add_row "**mem0**" "API Key" "Secret" "•••••••" "✅ Set"
   else
-    log_info "MEM0_API_KEY not set (using local JSON memory 鈥?this is fine)"
-    add_row "**mem0**" "API Key" "Secret" "-" "鈴笍 Using Local"
+    log_info "MEM0_API_KEY not set (using local JSON memory — this is fine)"
+    add_row "**mem0**" "API Key" "Secret" "-" "⏭️ Using Local"
   fi
 }
 
@@ -254,10 +254,10 @@ cat >> "$SUMMARY_FILE" << 'EOF'
 <details>
 <summary><strong>Legend</strong></summary>
 
-- 鉁?**Valid**: Credential is properly configured and verified via API
-- 鈿狅笍 **Warning**: Credential is set but format may be invalid, or is optional and not set
-- 鉂?**Invalid**: Credential is missing or invalid (required)
-- 鈴笍 **Skipped**: Using alternative (e.g., local memory instead of cloud)
+- ✅ **Valid**: Credential is properly configured and verified via API
+- ⚠️ **Warning**: Credential is set but format may be invalid, or is optional and not set
+- ❌ **Invalid**: Credential is missing or invalid (required)
+- ⏭️ **Skipped**: Using alternative (e.g., local memory instead of cloud)
 
 </details>
 
@@ -283,7 +283,7 @@ cat >> "$SUMMARY_FILE" << 'EOF'
 3. **NVIDIA NIM**: Regenerate at [build.nvidia.com/moonshotai/kimi-k2.5](https://build.nvidia.com/moonshotai/kimi-k2.5)
 4. **OpenRouter**: Regenerate at [openrouter.ai/keys](https://openrouter.ai/keys)
 5. **Allowed Emails**: Update the `ALLOWED_EMAILS` secret with comma-separated addresses
-6. Update secrets in repo: Settings 鈫?Secrets and variables 鈫?Actions
+6. Update secrets in repo: Settings → Secrets and variables → Actions
 
 </details>
 EOF
