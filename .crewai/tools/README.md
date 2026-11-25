@@ -61,7 +61,7 @@ Workflow Run: 123456 (#42)
 **Example:**
 
 ```python
-size = check_log_size('core-ci')
+size = check_log_size("core-ci")
 # Returns:
 # 🚨 Recommendation: DO NOT READ FULLY
 # This log is too large (245.7KB). Use search_log instead.
@@ -132,19 +132,19 @@ size = check_log_size('core-ci')
 
 ```python
 # Find errors
-search_log('core-ci', 'error')
+search_log("core-ci", "error")
 
 # Find test failures
-search_log('core-ci', 'FAILED')
+search_log("core-ci", "FAILED")
 
 # Find exceptions
-search_log('core-ci', 'exception')
+search_log("core-ci", "exception")
 
 # Find specific test
-search_log('core-ci', 'test_user_login')
+search_log("core-ci", "test_user_login")
 
 # Find file references
-search_log('core-ci', 'auth/test_auth.py')
+search_log("core-ci", "auth/test_auth.py")
 ```
 
 **Example Output:**
@@ -199,14 +199,14 @@ Expected: 200, Got: 401
 
 ```python
 # Small log - safe
-log = read_full_log('credential-validation')
+log = read_full_log("credential-validation")
 
 # Large log - ERROR
-log = read_full_log('core-ci')
+log = read_full_log("core-ci")
 # Returns: 🚨 ERROR: Log is 245.7KB - too large!
 
 # Large log - with limit
-log = read_full_log('core-ci', max_lines=500)
+log = read_full_log("core-ci", max_lines=500)
 # Returns: First 500 lines
 ```
 
@@ -352,21 +352,21 @@ for job in failed_jobs:
 
    ```python
    # BAD
-   log = read_full_log('core-ci')  # Without context
+   log = read_full_log("core-ci")  # Without context
 
    # GOOD
-   summary = read_job_summary('core-ci')  # Know what to look for
-   errors = search_log('core-ci', 'test_user_login')  # Targeted
+   summary = read_job_summary("core-ci")  # Know what to look for
+   errors = search_log("core-ci", "test_user_login")  # Targeted
    ```
 
 3. **Don't use full read for large logs**
 
    ```python
    # BAD
-   log = read_full_log('core-ci', max_lines=10000)  # Still too much!
+   log = read_full_log("core-ci", max_lines=10000)  # Still too much!
 
    # GOOD
-   errors = search_log('core-ci', 'error', max_matches=20)  # Focused
+   errors = search_log("core-ci", "error", max_matches=20)  # Focused
    ```
 
 4. **Don't provide vague recommendations**
@@ -463,24 +463,24 @@ index = read_job_index()
 # test-crewai: ❌ failure, 156.2KB (medium)
 
 # 2. Read summaries
-core_summary = read_job_summary('core-ci')
+core_summary = read_job_summary("core-ci")
 # Shows: "3 tests failed"
 
-crewai_summary = read_job_summary('test-crewai')
+crewai_summary = read_job_summary("test-crewai")
 # Shows: "1 integration test failed"
 
 # 3. Core CI: Large log - use search
-core_errors = search_log('core-ci', 'FAILED', max_matches=10)
+core_errors = search_log("core-ci", "FAILED", max_matches=10)
 # Find specific test failures
 
-core_test_login = search_log('core-ci', 'test_user_login', context_lines=5)
+core_test_login = search_log("core-ci", "test_user_login", context_lines=5)
 # Get details on first failure
 
 # 4. Test CrewAI: Medium log - check stats
-crewai_stats = get_log_stats('test-crewai')
+crewai_stats = get_log_stats("test-crewai")
 # 🔴 Errors: 5
 
-crewai_errors = search_log('test-crewai', 'error', max_matches=10)
+crewai_errors = search_log("test-crewai", "error", max_matches=10)
 # Get error details
 
 # 5. Generate detailed report
